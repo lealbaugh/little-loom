@@ -1,0 +1,35 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.4/svg.min.js"></script>
+  <script language="javascript" type="text/javascript" src="default-draft.js"></script>
+  <script language="javascript" type="text/javascript" src="ini.js"></script>
+  <script language="javascript" type="text/javascript" src="drafting.js"></script>
+  <style> 
+	body {
+		text-align: center;
+	}
+	* {
+		/*outline: 1px solid red;*/
+	}
+	#draft-box {
+		display: block;
+		margin: 0px auto;
+	}
+	.draft {
+		display: inline-block;
+	}
+  }
+</style>
+</head>
+<body  ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+  <div id="draft-box">
+	<div id="threading" class="draft"></div>
+	<div id="tieup" class="draft"></div><br>
+	<div id="drawdown" class="draft"></div>
+	<div id="treadling" class="draft"></div>
+  </div>
+  <button onclick="testSave();">Download .WIF</button>
+  <div id="about">This tool uses the WIF (Weaving Information Format) specification that is common to handweaving pattern development tools. You can read more about it <a href="http://www.mhsoft.com/wif/wif1-1.txt">here</a>.</div>
+</body>
+</html>
