@@ -1,4 +1,4 @@
-var threadWidth = 20;
+var threadWidth = 15;
 var threadSpacing = 2;
 
 
@@ -8,25 +8,50 @@ SVG.on(document, 'DOMContentLoaded', function() {
 	tieup = SVG('tieup');
 	drawdown = SVG('drawdown');
 	treadling = SVG('treadling');
-	renderDraft(draft, threading, tieup, drawdown, treadling);
+	renderNewDraft();
 });
 
 var done = false;
 function testSave () {
 	if (!done) {
 		done=true;
-		saveWif(draft, "hi.wif");
+		saveWif(draft, "saved.wif");
 	}
 }
 
-function renderDraft(draft, threading, tieup, drawdown, treadling) {
+function renderNewDraft() {
 	// threading width is number of warps * thread width
 	// threading height is number of frames * thread width
 	threading.size(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth);
-	threading.rect(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth).fill('#f06');
+	// threading.rect(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth).fill('#f06');
 	for (var i=0; i<draft.WARP.Threads; i++) {
-		var thisWarp = parseInt(draft.THREADING[i+1]) - 1; //warps and frames are 1-indexed
-		threading.rect(threadWidth, threadWidth).move(i * threadWidth, thisWarp * threadWidth).fill('#000');
+		var thisWarp = threading.group();
+		for (var j=0; j<draft.WEAVING.Shafts; j++) {
+			var heddle = threading.rect(threadWidth, threadWidth).move(i*threadWidth, j*threadWidth);
+			heddle.addTo(thisWarp);
+			heddle.warpNumber = i+1;
+			heddle.pos = j+1;
+			if (heddle.pos == parseInt(draft.THREADING[heddle.warpNumber])) heddle.fill('#f06');
+			else heddle.fill("#fff");
+			heddle.click(function () {
+				var sibs = this.siblings();
+				this.fill("#0ff");
+				for (var h=0; h<sibs.length; h++) {
+					if (sibs[h]!=this) {
+						sibs[h].fill("#fff");
+					}
+				}
+				// then update the draft
+				draft.THREADING[this.warpNumber] = this.pos;
+				// console.log(draft.THREADING);
+			});
+			heddle.mouseover(function () {
+				this.stroke({color:'#000', width:1});
+			});
+			heddle.mouseout(function () {
+				this.attr('stroke', null);
+			})
+		}
 	}
 
 	tieup.size(draft.WEAVING.Treadles * threadWidth, draft.WEAVING.Shafts * threadWidth);
@@ -44,11 +69,25 @@ function renderDraft(draft, threading, tieup, drawdown, treadling) {
 	}
 }
 
-function togglePosition () {
-	// clear the other frames for this warp
-	// update the draft
-	// re-render this warp
-}
+// function updateDraft () {
+// 	for (var i=0; i<draft.WARP.Threads; i++) {
+// 		renderWarpDrawdown(drawdown.warps[i]);
+// 	}
+// }
+
+// function togglePosition () {
+// 	// clear the other frames for this warp
+// 	// update the draft
+// 	// re-render this warp
+// }
+
+// function renderWarpThreading () {
+// 	// move the box to the right position
+// }
+
+// function renderWarpDrawdown () {
+// 	// iterate over picks
+// }
 
 // ------- File saving / loading ----------
 // (mostly copied from earlier projects...)
@@ -84,6 +123,7 @@ function loadWif (text) {
 		draft = data;
 		// console.log(JSON.stringify(data, null, 4));
 		console.log(data);
+		renderNewDraft();
 	}
 	else {
 		console.log("not a WIF?");
