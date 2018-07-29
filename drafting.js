@@ -1,8 +1,13 @@
-var threadWidth = 15;
-var threadSpacing = 2;
+var threadWidth = 10;
+var threadSpacing = 4;
 
-var warpColor = '#f06';
-var weftColor = '#6f0';
+var maxWefts = 64;
+var maxWarps = 64;
+
+// var warpColor = '#f06';
+// var weftColor = '#6f0';
+var warpColor = '#000';
+var weftColor = '#ee0';
 var tieupColor = "#06f";
 
 var drawdownArray = [null];
@@ -39,6 +44,8 @@ function renderNewDraft() {
 	tieup.clear();
 	drawdown.clear();
 	treadling.clear();
+	drawdownArray = [null];
+
 	// threading width is number of warps * thread width
 	// threading height is number of frames * thread width
 	threading.size(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth);
@@ -175,13 +182,20 @@ function renderNewDraft() {
 			warp.addTo(interlacement);
 			weft.addTo(interlacement);
 			interlacement.warp = warp;
+			interlacement.warpUp = false;
 			lineArray.push(interlacement);
 			// drawdownArray[i][j] = interlacement;
 			interlacement.on('warpUp', function () {
-				this.warp.front();
+				if (!this.warpUp) {
+					this.warp.front();
+					this.warpUp = true;
+				}
 			});
 			interlacement.on('warpDown', function () {
-				this.warp.back();
+				if (this.warpUp) {
+					this.warp.back();
+					this.warpUp = false;
+				}
 			});
 		}
 		drawdownArray.push(lineArray);
@@ -189,17 +203,16 @@ function renderNewDraft() {
 	// console.log(drawdownArray);
 
 	updateDraft();
-	tieupToMatrix();
 }
 
 function csvAdd (csv, thingToAdd) {
-	var list = csv.split(",");
+	var list = (csv+"").split(",");
 	list.push(thingToAdd);
 	return list.join(",");
 }
 
 function csvRemove (csv, thingToRemove) {
-	var list = csv.split(",");
+	var list = (csv+"").split(",");
 
 	var newList = [];
 	for (var i=0; i<list.length; i++) {
@@ -211,18 +224,25 @@ function csvRemove (csv, thingToRemove) {
 }
 
 function tieupToMatrix () {
-	var mat = [null];
+	var mat = [];
+	var padding = [];
+	for (var shaft=1; shaft<=draft.WEAVING.Shafts; shaft++) {
+		padding.push(null);
+	}
+	mat.push(padding);
 	for (i in draft.TIEUP) {
-		var shaft = [null];
+		var treadle = [null];
 		var thisTiedTreadle = draft.TIEUP[i].split(",");
-		for (var j=1; j<=draft.WEAVING.Shafts; j++) {
-			if (thisTiedTreadle.includes(j) || thisTiedTreadle.includes(j+"")) shaft.push(1);
-			else shaft.push(0);
+		for (var shaft=1; shaft<=draft.WEAVING.Shafts; shaft++) {
+			if (thisTiedTreadle.includes(shaft) || thisTiedTreadle.includes(shaft+"")) treadle.push(1);
+			else treadle.push(0);
 		}	
-		mat.push(shaft);
+		mat.push(treadle);
 	}
 	// console.log(JSON.stringify(mat, null, 2));
 	console.log(mat);
+
+
 	return mat;
 }
 
@@ -237,12 +257,16 @@ function renderWarpDrawdown (i, tieupMatrix) {
 	for (var j = 1; j<=parseInt(draft.WEFT.Threads); j++) {
 		var warpUp = false;
 		var heddle = draft.THREADING[i];
-		var pick = draft.TREADLING[j]+"".split(',');
-		console.log(pick);
+		var pick = (draft.TREADLING[j]+"").split(',');
 		for (var t = 0; t<pick.length; t++) {
-			console.log(tieupMatrix[parseInt(heddle)]);
-			if (tieupMatrix[parseInt(heddle)][parseInt(pick[t])] == 1) {
-				warpUp = true;
+			// "When the string is empty, split() returns an array containing one empty string, 
+			// rather than an empty array. If the string and separator are both empty strings, 
+			// an empty array is returned." 
+			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
+			if (pick[t] != "") {
+				if (tieupMatrix[parseInt(pick[t])][parseInt(heddle)] == 1) {
+					warpUp = true;
+				}
 			}
 		}
 		if (warpUp) {
@@ -287,7 +311,14 @@ function loadWif (text) {
 	if (data.WIF) {
 		draft = data;
 		// console.log(JSON.stringify(data, null, 4));
-		console.log(data);
+		// console.log(data);
+		if (parseInt(draft.WARP.Threads) > maxWarps) draft.WARP.Threads = maxWarps;
+		if (parseInt(draft.WEFT.Threads) > maxWefts) draft.WEFT.Threads = maxWefts;
+
+		threading.clear();
+		tieup.clear();
+		drawdown.clear();
+		treadling.clear();
 		renderNewDraft();
 	}
 	else {
