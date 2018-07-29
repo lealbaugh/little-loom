@@ -35,6 +35,10 @@ function trompAsWrit () {
 // the group can receive a warpUp or warpDown event, which shuffles the svg order of the rects
 
 function renderNewDraft() {
+	threading.clear();
+	tieup.clear();
+	drawdown.clear();
+	treadling.clear();
 	// threading width is number of warps * thread width
 	// threading height is number of frames * thread width
 	threading.size(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth);
@@ -57,6 +61,8 @@ function renderNewDraft() {
 				}
 				// then update the draft
 				draft.THREADING[this.warpNumber] = this.pos;
+				updateDraft();
+
 				// console.log(draft.THREADING);
 			});
 			heddle.mouseover(function () {
@@ -99,6 +105,8 @@ function renderNewDraft() {
 					draft.TREADLING[this.pickNumber] = csvAdd(draft.TREADLING[this.pickNumber], this.treadleNumber);
 				}
 				// console.log(draft.TREADLING);
+				updateDraft();
+
 			});
 			treadle.mouseover(function () {
 				this.stroke({color:'#000', width:1});
@@ -142,6 +150,8 @@ function renderNewDraft() {
 					this.fill(tieupColor);
 					draft.TIEUP[this.treadleNumber] = csvAdd(draft.TIEUP[this.treadleNumber], this.frameNumber);
 				}
+				updateDraft();
+
 				// console.log(draft.TIEUP);
 			});
 			tie.mouseover(function () {
@@ -168,7 +178,6 @@ function renderNewDraft() {
 			lineArray.push(interlacement);
 			// drawdownArray[i][j] = interlacement;
 			interlacement.on('warpUp', function () {
-				console.log(i,j);
 				this.warp.front();
 			});
 			interlacement.on('warpDown', function () {
@@ -180,6 +189,7 @@ function renderNewDraft() {
 	// console.log(drawdownArray);
 
 	updateDraft();
+	tieupToMatrix();
 }
 
 function csvAdd (csv, thingToAdd) {
@@ -200,15 +210,46 @@ function csvRemove (csv, thingToRemove) {
 	return newList.join(",");
 }
 
+function tieupToMatrix () {
+	var mat = [null];
+	for (i in draft.TIEUP) {
+		var shaft = [null];
+		var thisTiedTreadle = draft.TIEUP[i].split(",");
+		for (var j=1; j<=draft.WEAVING.Shafts; j++) {
+			if (thisTiedTreadle.includes(j) || thisTiedTreadle.includes(j+"")) shaft.push(1);
+			else shaft.push(0);
+		}	
+		mat.push(shaft);
+	}
+	// console.log(JSON.stringify(mat, null, 2));
+	console.log(mat);
+	return mat;
+}
+
 function updateDraft () {
+	var tieupMatrix = tieupToMatrix();
 	for (var i=1; i<=parseInt(draft.WARP.Threads); i++) {
-		renderWarpDrawdown(i);
+		renderWarpDrawdown(i, tieupMatrix);
 	}
 }
-function renderWarpDrawdown (i) {
+function renderWarpDrawdown (i, tieupMatrix) {
+	// var activeTreadles = 
 	for (var j = 1; j<=parseInt(draft.WEFT.Threads); j++) {
-		if (Math.random() < 0.5) {
+		var warpUp = false;
+		var heddle = draft.THREADING[i];
+		var pick = draft.TREADLING[j]+"".split(',');
+		console.log(pick);
+		for (var t = 0; t<pick.length; t++) {
+			console.log(tieupMatrix[parseInt(heddle)]);
+			if (tieupMatrix[parseInt(heddle)][parseInt(pick[t])] == 1) {
+				warpUp = true;
+			}
+		}
+		if (warpUp) {
 			drawdownArray[i][j].fire("warpUp");
+		}
+		else {
+			drawdownArray[i][j].fire("warpDown");
 		}
 	}
 }
