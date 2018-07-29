@@ -1,4 +1,4 @@
-var threadWidth = 10;
+var threadWidth = 15;
 var threadSpacing = 4;
 
 var maxWefts = 64;
@@ -7,7 +7,7 @@ var maxWarps = 64;
 // var warpColor = '#f06';
 // var weftColor = '#6f0';
 var warpColor = '#000';
-var weftColor = '#ee0';
+var weftColor = '#01eaea';
 var tieupColor = "#06f";
 
 var drawdownArray = [null];
@@ -22,12 +22,8 @@ SVG.on(document, 'DOMContentLoaded', function() {
 	renderNewDraft();
 });
 
-var done = false;
 function testSave () {
-	if (!done) {
-		done=true;
-		saveWif(draft, "saved.wif");
-	}
+	saveWif(draft, "saved.wif");
 }
 function trompAsWrit () {
 	if (draft.WARP.Threads == draft.WEFT.Threads) {
@@ -35,6 +31,8 @@ function trompAsWrit () {
 		renderNewDraft();
 	}
 }
+
+// ------- Draft display and manipulation ----------
 
 // drawdownArray is a list of lists, each one containing an SVG group with a warp and a weft in it
 // the group can receive a warpUp or warpDown event, which shuffles the svg order of the rects
@@ -277,6 +275,10 @@ function renderWarpDrawdown (i, tieupMatrix) {
 		}
 	}
 }
+
+// ----- Cut pattern rendering -------------
+
+
 
 // ------- File saving / loading ----------
 // (mostly copied from earlier projects...)
