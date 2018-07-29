@@ -5,6 +5,9 @@ var warpColor = '#f06';
 var weftColor = '#6f0';
 var tieupColor = "#06f";
 
+var drawdownArray = [null];
+// init to null so we can 1-index the drawdown
+
 // we are using http://svgjs.com/
 SVG.on(document, 'DOMContentLoaded', function() {
 	threading = SVG('threading');
@@ -21,6 +24,15 @@ function testSave () {
 		saveWif(draft, "saved.wif");
 	}
 }
+function trompAsWrit () {
+	if (draft.WARP.Threads == draft.WEFT.Threads) {
+		draft.TREADLING = draft.THREADING;	
+		renderNewDraft();
+	}
+}
+
+// drawdownArray is a list of lists, each one containing an SVG group with a warp and a weft in it
+// the group can receive a warpUp or warpDown event, which shuffles the svg order of the rects
 
 function renderNewDraft() {
 	// threading width is number of warps * thread width
@@ -67,7 +79,8 @@ function renderNewDraft() {
 			treadle.fill("#fff");
 			treadle.active = false;
 
-			var thisPickDraft = draft.TREADLING[treadle.pickNumber].split(",");
+			// coerce the treadling to a string in case we copied it from the threading
+			var thisPickDraft = (draft.TREADLING[treadle.pickNumber]+"").split(",");
 			for (var t=0; t<thisPickDraft.length; t++) {
 				if (parseInt(thisPickDraft[t]) == treadle.treadleNumber) {
 					treadle.active = true;
@@ -142,9 +155,31 @@ function renderNewDraft() {
 
 
 	drawdown.size(draft.WARP.Threads * threadWidth, draft.WEFT.Threads * threadWidth);
-	drawdown.rect(draft.WARP.Threads * threadWidth, draft.WEFT.Threads * threadWidth).fill('#60f');
+	// drawdown.rect(draft.WARP.Threads * threadWidth, draft.WEFT.Threads * threadWidth).fill('#60f');
+	for (var i=0; i<draft.WEFT.Threads; i++) {
+		var lineArray = [null];
+		for (var j=0; j<draft.WARP.Threads; j++) {
+			var interlacement = drawdown.group();
+			var warp = drawdown.rect(threadWidth - threadSpacing, threadWidth).move((i*threadWidth)+threadSpacing/2, j*threadWidth).fill(warpColor);
+			var weft = drawdown.rect(threadWidth, threadWidth - threadSpacing).move(i*threadWidth, (j*threadWidth)+threadSpacing/2).fill(weftColor);
+			warp.addTo(interlacement);
+			weft.addTo(interlacement);
+			interlacement.warp = warp;
+			lineArray.push(interlacement);
+			// drawdownArray[i][j] = interlacement;
+			interlacement.on('warpUp', function () {
+				console.log(i,j);
+				this.warp.front();
+			});
+			interlacement.on('warpDown', function () {
+				this.warp.back();
+			});
+		}
+		drawdownArray.push(lineArray);
+	}
+	// console.log(drawdownArray);
 
-
+	updateDraft();
 }
 
 function csvAdd (csv, thingToAdd) {
@@ -165,25 +200,18 @@ function csvRemove (csv, thingToRemove) {
 	return newList.join(",");
 }
 
-// function updateDraft () {
-// 	for (var i=0; i<draft.WARP.Threads; i++) {
-// 		renderWarpDrawdown(drawdown.warps[i]);
-// 	}
-// }
-
-// function togglePosition () {
-// 	// clear the other frames for this warp
-// 	// update the draft
-// 	// re-render this warp
-// }
-
-// function renderWarpThreading () {
-// 	// move the box to the right position
-// }
-
-// function renderWarpDrawdown () {
-// 	// iterate over picks
-// }
+function updateDraft () {
+	for (var i=1; i<=parseInt(draft.WARP.Threads); i++) {
+		renderWarpDrawdown(i);
+	}
+}
+function renderWarpDrawdown (i) {
+	for (var j = 1; j<=parseInt(draft.WEFT.Threads); j++) {
+		if (Math.random() < 0.5) {
+			drawdownArray[i][j].fire("warpUp");
+		}
+	}
+}
 
 // ------- File saving / loading ----------
 // (mostly copied from earlier projects...)
