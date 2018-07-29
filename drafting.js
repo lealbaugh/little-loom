@@ -1,6 +1,9 @@
 var threadWidth = 15;
 var threadSpacing = 2;
 
+var warpColor = '#f06';
+var weftColor = '#6f0';
+var tieupColor = "#06f";
 
 // we are using http://svgjs.com/
 SVG.on(document, 'DOMContentLoaded', function() {
@@ -23,7 +26,6 @@ function renderNewDraft() {
 	// threading width is number of warps * thread width
 	// threading height is number of frames * thread width
 	threading.size(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth);
-	// threading.rect(draft.WARP.Threads * threadWidth, draft.WEAVING.Shafts * threadWidth).fill('#f06');
 	for (var i=0; i<draft.WARP.Threads; i++) {
 		var thisWarp = threading.group();
 		for (var j=0; j<draft.WEAVING.Shafts; j++) {
@@ -31,11 +33,11 @@ function renderNewDraft() {
 			heddle.addTo(thisWarp);
 			heddle.warpNumber = i+1;
 			heddle.pos = j+1;
-			if (heddle.pos == parseInt(draft.THREADING[heddle.warpNumber])) heddle.fill('#f06');
+			if (heddle.pos == parseInt(draft.THREADING[heddle.warpNumber])) heddle.fill(warpColor);
 			else heddle.fill("#fff");
 			heddle.click(function () {
 				var sibs = this.siblings();
-				this.fill("#0ff");
+				this.fill(warpColor);
 				for (var h=0; h<sibs.length; h++) {
 					if (sibs[h]!=this) {
 						sibs[h].fill("#fff");
@@ -54,19 +56,113 @@ function renderNewDraft() {
 		}
 	}
 
+	treadling.size(draft.WEAVING.Treadles * threadWidth, draft.WEFT.Threads * threadWidth);
+	for (var j=0; j<draft.WEFT.Threads; j++) {
+		var thisPick = treadling.group();
+		for (var i=0; i<draft.WEAVING.Treadles; i++) {
+			var treadle = treadling.rect(threadWidth, threadWidth).move(i*threadWidth, j*threadWidth);
+			treadle.addTo(thisPick);
+			treadle.pickNumber = j+1;
+			treadle.treadleNumber = i+1;
+			treadle.fill("#fff");
+			treadle.active = false;
+
+			var thisPickDraft = draft.TREADLING[treadle.pickNumber].split(",");
+			for (var t=0; t<thisPickDraft.length; t++) {
+				if (parseInt(thisPickDraft[t]) == treadle.treadleNumber) {
+					treadle.active = true;
+					treadle.fill({color: weftColor});
+				}
+			}
+			treadle.click(function () {
+				if (this.active) {
+					this.active = false;
+					this.fill("#fff");
+					draft.TREADLING[this.pickNumber] = csvRemove(draft.TREADLING[this.pickNumber], this.treadleNumber);
+				}
+				else {
+					this.active = true;
+					this.fill(weftColor);
+					draft.TREADLING[this.pickNumber] = csvAdd(draft.TREADLING[this.pickNumber], this.treadleNumber);
+				}
+				// console.log(draft.TREADLING);
+			});
+			treadle.mouseover(function () {
+				this.stroke({color:'#000', width:1});
+			});
+			treadle.mouseout(function () {
+				this.attr('stroke', null);
+			})
+		}
+	}
+
+
 	tieup.size(draft.WEAVING.Treadles * threadWidth, draft.WEAVING.Shafts * threadWidth);
-	tieup.rect(draft.WEAVING.Treadles * threadWidth, draft.WEAVING.Shafts * threadWidth).fill('#06f');
+	// this is an exact duplicate of the treadle logic, and very similar to the threading logic -- 
+	// it would make a lot of sense to generalize...
+	tieup.size(draft.WEAVING.Treadles * threadWidth, draft.WEAVING.Shafts * threadWidth);
+	for (var j=0; j<draft.WEAVING.Shafts; j++) {
+		var thisPick = tieup.group();
+		for (var i=0; i<draft.WEAVING.Treadles; i++) {
+			var tie = tieup.rect(threadWidth, threadWidth).move(i*threadWidth, j*threadWidth);
+			tie.addTo(thisPick);
+			tie.frameNumber = j+1;
+			tie.treadleNumber = i+1;
+			tie.fill("#fff");
+			tie.active = false;
+
+			var thisTiedTreadle = draft.TIEUP[tie.treadleNumber].split(",");
+			for (var t=0; t<thisTiedTreadle.length; t++) {
+				if (parseInt(thisTiedTreadle[t]) == tie.frameNumber) {
+					tie.active = true;
+					tie.fill({color: tieupColor});
+				}
+			}
+			tie.click(function () {
+				if (this.active) {
+					this.active = false;
+					this.fill("#fff");
+					draft.TIEUP[this.treadleNumber] = csvRemove(draft.TIEUP[this.treadleNumber], this.frameNumber);
+				}
+				else {
+					this.active = true;
+					this.fill(tieupColor);
+					draft.TIEUP[this.treadleNumber] = csvAdd(draft.TIEUP[this.treadleNumber], this.frameNumber);
+				}
+				// console.log(draft.TIEUP);
+			});
+			tie.mouseover(function () {
+				this.stroke({color:'#000', width:1});
+			});
+			tie.mouseout(function () {
+				this.attr('stroke', null);
+			})
+		}
+	}
+
 
 	drawdown.size(draft.WARP.Threads * threadWidth, draft.WEFT.Threads * threadWidth);
 	drawdown.rect(draft.WARP.Threads * threadWidth, draft.WEFT.Threads * threadWidth).fill('#60f');
 
-	treadling.size(draft.WEAVING.Treadles * threadWidth, draft.WEFT.Threads * threadWidth);
-	treadling.rect(draft.WEAVING.Treadles * threadWidth, draft.WEFT.Threads * threadWidth).fill('#6f0');
 
-	for (var i=0; i<draft.WEFT.Threads; i++) {
-		var thisPick = parseInt(draft.TREADLING[i+1]) - 1; //warps and frames are 1-indexed
-		treadling.rect(threadWidth, threadWidth).move(thisPick * threadWidth, i * threadWidth).fill('#000');
+}
+
+function csvAdd (csv, thingToAdd) {
+	var list = csv.split(",");
+	list.push(thingToAdd);
+	return list.join(",");
+}
+
+function csvRemove (csv, thingToRemove) {
+	var list = csv.split(",");
+
+	var newList = [];
+	for (var i=0; i<list.length; i++) {
+		if (list[i] != thingToRemove && parseInt(list[i]) != thingToRemove) {
+			newList.push(list[i]);
+		}
 	}
+	return newList.join(",");
 }
 
 // function updateDraft () {
