@@ -19,6 +19,8 @@ SVG.on(document, 'DOMContentLoaded', function() {
 	tieup = SVG('tieup');
 	drawdown = SVG('drawdown');
 	treadling = SVG('treadling');
+	frames = SVG('frames');
+
 	renderNewDraft();
 });
 
@@ -238,9 +240,7 @@ function tieupToMatrix () {
 		mat.push(treadle);
 	}
 	// console.log(JSON.stringify(mat, null, 2));
-	console.log(mat);
-
-
+	// console.log(mat);
 	return mat;
 }
 
@@ -276,8 +276,67 @@ function renderWarpDrawdown (i, tieupMatrix) {
 	}
 }
 
-// ----- Cut pattern rendering -------------
+// ----- Cut-pattern rendering -------------
 
+function renderAllFrames () {
+	var frameWidth = (parseInt(draft.WARP.Threads) + 2)*heddleWidth;
+	frames.clear();
+	frames.size(frameWidth, frameHeight*draft.WEAVING.Shafts);
+	for (var h = 1; h<=draft.WEAVING.Shafts; h++) {
+		renderHeddleFrame(h, frames, frameWidth);
+	}
+}
+
+function downloadFrames () {
+	renderAllFrames();
+	saveSvg(frames.svg(), "cut-pattern.svg");
+}
+
+function renderHeddleFrame (whichFrame, frames, frameWidth) {
+	var tieupMatrix = tieupToMatrix();
+
+	frame = frames.group();
+	frame.size = (frameWidth, frameHeight);
+	// frame.rect((parseInt(draft.WARP.Threads) + 2)*heddleWidth, frameHeight).fill("#ff0");
+	var boundsL = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsLSVG);
+	var boundsR = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsRSVG);
+	frame.use(boundsL);
+	frame.use(boundsR).move(frameWidth - (2*heddleWidth), 0);
+
+	var heddleHole = frame.symbol().attr("fill", "none").stroke("#f06");
+	heddleHole.svg(heddleSVG);
+	var heddleSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	heddleSlot.svg(heddleSlotSVG);
+
+	var tieupHole = frame.symbol().attr("fill", "none").stroke("#f06");
+	tieupHole.svg(tieupHoleSVG);
+	var tieupSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	tieupSlot.svg(tieupSlotSVG);
+	var tieupGroup = frame.group();
+
+	var totalTieupWidth = (draft.WEAVING.Treadles*tieupWidth);
+	for (var i=0; i<draft.WARP.Threads; i++) {
+		if (draft.THREADING[i] == whichFrame) {
+			frame.use(heddleHole).move((i+1)*heddleWidth, 72);
+		}
+		else {
+			frame.use(heddleSlot).move((i+1)*heddleWidth, 72);
+		}
+	}
+	for (var i=1; i<=draft.WEAVING.Treadles; i++) {
+		if (tieupMatrix[i][whichFrame] == 1) {
+			frame.use(tieupHole).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+		}
+		else {
+			frame.use(tieupSlot).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+		}
+	}
+	tieupGroup.move((frameWidth - totalTieupWidth)/2, 0);
+	frame.line((2*heddleWidth), frameHeight, frameWidth-(2*heddleWidth), frameHeight).stroke("#06f");
+	frame.line((2*heddleWidth), 0, frameWidth-(2*heddleWidth), 0).stroke("#06f");
+
+	frame.move(0, (whichFrame-1)*frameHeight);
+}
 
 
 // ------- File saving / loading ----------
@@ -314,8 +373,12 @@ function loadWif (text) {
 		draft = data;
 		// console.log(JSON.stringify(data, null, 4));
 		// console.log(data);
-		if (parseInt(draft.WARP.Threads) > maxWarps) draft.WARP.Threads = maxWarps;
-		if (parseInt(draft.WEFT.Threads) > maxWefts) draft.WEFT.Threads = maxWefts;
+		if (parseInt(draft.WARP.Threads) > maxWarps) {
+			draft.WARP.Threads = maxWarps;
+		}
+		if (parseInt(draft.WEFT.Threads) > maxWefts) {
+			draft.WEFT.Threads = maxWefts;
+		}
 
 		threading.clear();
 		tieup.clear();
