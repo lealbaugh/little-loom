@@ -315,12 +315,12 @@ function renderHeddleFrame (whichFrame, frames, frameWidth) {
 	var tieupGroup = frame.group();
 
 	var totalTieupWidth = (draft.WEAVING.Treadles*tieupWidth);
-	for (var i=0; i<draft.WARP.Threads; i++) {
-		if (draft.THREADING[i] == whichFrame) {
-			frame.use(heddleHole).move((i+1)*heddleWidth, 72);
+	for (var i=1; i<=draft.WARP.Threads; i++) {
+		if (parseInt(draft.THREADING[i]) == parseInt(whichFrame)) {
+			frame.use(heddleHole).move((i)*heddleWidth, 72);
 		}
 		else {
-			frame.use(heddleSlot).move((i+1)*heddleWidth, 72);
+			frame.use(heddleSlot).move((i)*heddleWidth, 72);
 		}
 	}
 	for (var i=1; i<=draft.WEAVING.Treadles; i++) {
