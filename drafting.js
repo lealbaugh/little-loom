@@ -1,5 +1,5 @@
-var threadWidth = 15;
-var threadSpacing = 4;
+var threadWidth = 10;
+var threadSpacing = 2;
 
 var maxWefts = 64;
 var maxWarps = 64;
@@ -303,9 +303,16 @@ function renderHeddleFrame (whichFrame, frames, frameWidth) {
 	frame.use(boundsL);
 	frame.use(boundsR).move(frameWidth - (2*heddleWidth), 0);
 
+	// var boundsL = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsLSVG);
+	// var boundsR = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsRSVG);
+	// frame.svg(frameBoundsLSVG);
+	// frame.svg(frameBoundsRSVG).move(frameWidth - (2*heddleWidth), 0);
+
+
 	var heddleHole = frame.symbol().attr("fill", "none").stroke("#f06");
 	heddleHole.svg(heddleSVG);
-	var heddleSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	// var heddleSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	var heddleSlot = frame.symbol().attr("stroke", "none").fill("#999");
 	heddleSlot.svg(heddleSlotSVG);
 
 	var tieupHole = frame.symbol().attr("fill", "none").stroke("#f06");
