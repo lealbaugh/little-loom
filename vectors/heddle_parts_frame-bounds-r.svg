@@ -1,13 +1,4 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="36" height="306" viewBox="0 0 36 306">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: none;
-        stroke: #458c93;
-        stroke-miterlimit: 10;
-      }
-    </style>
-  </defs>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 306">
   <title>heddle_parts</title>
-  <path class="cls-1" d="M0,306H27.36A8.64,8.64,0,0,0,36,297.36V8.64A8.64,8.64,0,0,0,27.36,0H0"/>
+  <path d="M0,306H27.36A8.64,8.64,0,0,0,36,297.36V8.64A8.64,8.64,0,0,0,27.36,0H0" fill="none" stroke="#458c93" stroke-miterlimit="10"/>
 </svg>
