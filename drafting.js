@@ -304,8 +304,8 @@ function renderHeddleFrame (whichFrame, frames, frameWidth) {
 	// frame.use(boundsR).move(frameWidth - (2*heddleWidth), 0);
 
 
-	frame.svg(frameBoundsLSVG).attr("fill", "none").stroke("#000");
-	frame.svg(frameBoundsRSVG).move(frameWidth - (2*heddleWidth), 0).attr("fill", "none").stroke("#000");
+	frame.nested().svg(frameBoundsLSVG).attr("fill", "none").stroke("#000");
+	frame.nested().svg(frameBoundsRSVG).move(frameWidth - (2*heddleWidth), 0).attr("fill", "none").stroke("#000");
 
 
 	// var heddleHole = frame.symbol().attr("fill", "none").stroke("#f06");
@@ -324,26 +324,26 @@ function renderHeddleFrame (whichFrame, frames, frameWidth) {
 	for (var i=1; i<=draft.WARP.Threads; i++) {
 		if (parseInt(draft.THREADING[i]) == parseInt(whichFrame)) {
 			// frame.use(heddleHole).move((i)*heddleWidth, 72);
-			frame.svg(heddleSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
+			var hole = frame.nested().svg(heddleSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
 		}
 		else {
 			// frame.use(heddleSlot).move((i)*heddleWidth, 72);
-			frame.svg(heddleSlotSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
+			frame.nested().svg(heddleSlotSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
 		}
 	}
 	for (var i=1; i<=draft.WEAVING.Treadles; i++) {
 		if (tieupMatrix[i][whichFrame] == 1) {
 			// frame.use(tieupHole).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
-			var hole = tieupGroup.svg(tieupHoleSVG).move((i-1)*tieupWidth, 0);
+			var hole = tieupGroup.nested().svg(tieupHoleSVG).move((i-1)*tieupWidth, 0).attr("fill", "none").stroke("#000");
 		}
 		else {
 			// frame.use(tieupSlot).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
-			var hole = tieupGroup.svg(tieupSlotSVG).move((i-1)*tieupWidth, 0);
+			var hole = tieupGroup.nested().svg(tieupSlotSVG).move((i-1)*tieupWidth, 0).attr("fill", "none").stroke("#000");
 		}
 	}
 	tieupGroup.move((frameWidth - totalTieupWidth)/2, 0);
-	frame.line((2*heddleWidth), frameHeight, frameWidth-(2*heddleWidth), frameHeight).stroke("#06f");
-	frame.line((2*heddleWidth), 0, frameWidth-(2*heddleWidth), 0).stroke("#06f");
+	frame.line((2*heddleWidth), frameHeight, frameWidth-(2*heddleWidth), frameHeight).stroke("#000");
+	frame.line((2*heddleWidth), 0, frameWidth-(2*heddleWidth), 0).stroke("#000");
 
 	frame.move(0, (whichFrame-1)*frameHeight);
 }
