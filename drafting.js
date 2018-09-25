@@ -298,44 +298,47 @@ function renderHeddleFrame (whichFrame, frames, frameWidth) {
 	frame = frames.group();
 	frame.size = (frameWidth, frameHeight);
 	// frame.rect((parseInt(draft.WARP.Threads) + 2)*heddleWidth, frameHeight).fill("#ff0");
-	var boundsL = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsLSVG);
-	var boundsR = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsRSVG);
-	frame.use(boundsL);
-	frame.use(boundsR).move(frameWidth - (2*heddleWidth), 0);
-
 	// var boundsL = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsLSVG);
 	// var boundsR = frame.symbol().attr("fill", "none").stroke("#000").svg(frameBoundsRSVG);
-	// frame.svg(frameBoundsLSVG);
-	// frame.svg(frameBoundsRSVG).move(frameWidth - (2*heddleWidth), 0);
+	// frame.use(boundsL);
+	// frame.use(boundsR).move(frameWidth - (2*heddleWidth), 0);
 
 
-	var heddleHole = frame.symbol().attr("fill", "none").stroke("#f06");
-	heddleHole.svg(heddleSVG);
-	// var heddleSlot = frame.symbol().attr("fill", "none").stroke("#06f");
-	var heddleSlot = frame.symbol().attr("stroke", "none").fill("#999");
-	heddleSlot.svg(heddleSlotSVG);
+	frame.svg(frameBoundsLSVG).attr("fill", "none").stroke("#000");
+	frame.svg(frameBoundsRSVG).move(frameWidth - (2*heddleWidth), 0).attr("fill", "none").stroke("#000");
 
-	var tieupHole = frame.symbol().attr("fill", "none").stroke("#f06");
-	tieupHole.svg(tieupHoleSVG);
-	var tieupSlot = frame.symbol().attr("fill", "none").stroke("#06f");
-	tieupSlot.svg(tieupSlotSVG);
+
+	// var heddleHole = frame.symbol().attr("fill", "none").stroke("#f06");
+	// heddleHole.svg(heddleSVG);
+	// // var heddleSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	// var heddleSlot = frame.symbol().attr("stroke", "none").fill("#999");
+	// heddleSlot.svg(heddleSlotSVG);
+
+	// var tieupHole = frame.symbol().attr("fill", "none").stroke("#f06");
+	// tieupHole.svg(tieupHoleSVG);
+	// var tieupSlot = frame.symbol().attr("fill", "none").stroke("#06f");
+	// tieupSlot.svg(tieupSlotSVG);
 	var tieupGroup = frame.group();
 
 	var totalTieupWidth = (draft.WEAVING.Treadles*tieupWidth);
 	for (var i=1; i<=draft.WARP.Threads; i++) {
 		if (parseInt(draft.THREADING[i]) == parseInt(whichFrame)) {
-			frame.use(heddleHole).move((i)*heddleWidth, 72);
+			// frame.use(heddleHole).move((i)*heddleWidth, 72);
+			frame.svg(heddleSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
 		}
 		else {
-			frame.use(heddleSlot).move((i)*heddleWidth, 72);
+			// frame.use(heddleSlot).move((i)*heddleWidth, 72);
+			frame.svg(heddleSlotSVG).move((i)*heddleWidth, 72).attr("fill", "none").stroke("#000");
 		}
 	}
 	for (var i=1; i<=draft.WEAVING.Treadles; i++) {
 		if (tieupMatrix[i][whichFrame] == 1) {
-			frame.use(tieupHole).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+			// frame.use(tieupHole).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+			var hole = tieupGroup.svg(tieupHoleSVG).move((i-1)*tieupWidth, 0);
 		}
 		else {
-			frame.use(tieupSlot).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+			// frame.use(tieupSlot).move((i-1)*tieupWidth, 0).addTo(tieupGroup);
+			var hole = tieupGroup.svg(tieupSlotSVG).move((i-1)*tieupWidth, 0);
 		}
 	}
 	tieupGroup.move((frameWidth - totalTieupWidth)/2, 0);
