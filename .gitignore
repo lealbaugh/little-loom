@@ -1,1 +1,3 @@
+*.wif
+!wifs/*.wif
 .DS_Store
