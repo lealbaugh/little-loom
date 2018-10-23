@@ -1,0 +1,5 @@
+A little client-side loom simulator and generator to accompany my 2018 Strange Loop talk, ["'It's Just Matrix Multiplication': Notation For Weaving"](https://www.thestrangeloop.com/2018/its-just-matrix-multiplication-notation-for-weaving.html).
+
+This tool uses the [WIF file format](http://www.mhsoft.com/wif/wif.html) and should be compatible with weaving drafts you find elsewhere on the internet. (Though many will be intended for much wider fabrics than you'll want to weave on a shoebox loom.) Some starter WIFs are included in this repo.
+
+The heddle frames generated can be cut out of cardboard and used in any kind of shoebox or backstrap loom. You can watch my [brief video on building a shoebox loom](https://vimeo.com/292752195) for some inspiration, or look around on Instructables -- [here's a nice one](https://www.instructables.com/id/Scrap-Bin-Rigid-Heddle-Loom/).

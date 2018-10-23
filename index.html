@@ -20,6 +20,10 @@
 	.draft {
 		display: inline-block;
 	}
+	#about {
+		width: 50em;
+		margin: 0 auto;
+	}
   }
 </style>
 </head>
@@ -34,7 +38,14 @@
   <button onclick="testSave();">Download .WIF</button>
   <button onclick="renderAllFrames();">Render frames</button>
   <button onclick="downloadFrames();">Download frames</button>
-  <div id="about">This tool uses the WIF (Weaving Information Format) specification that is common to handweaving pattern development tools. You can read more about it <a href="http://www.mhsoft.com/wif/wif1-1.txt">here</a>.</div>
+  <div id="about">
+  	<p>Load a <a href="http://www.mhsoft.com/wif/wif.html">WIF</a> file by dragging and dropping onto this page. 
+  		
+  		You can find some starter WIFs at <a href="https://github.com/lealbaugh/little-loom">the repo for this project</a>.</p>
+
+  	<p>This is a little client-side loom simulator and generator to accompany my 2018 Strange Loop talk, <a href="https://www.thestrangeloop.com/2018/its-just-matrix-multiplication-notation-for-weaving.html">'It's Just Matrix Multiplication': Notation For Weaving</a>. 
+  		The heddle frames generated can be cut out of cardboard and used in any kind of shoebox or backstrap loom. You can watch my <a href="https://vimeo.com/292752195">brief video on building a shoebox loom</a> for some inspiration.</p>
+		</div>
   		<div id="frames"></div>
 </body>
 </html>
